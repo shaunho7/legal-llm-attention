@@ -14,4 +14,4 @@ Condition: 'facet-5'
 
 Evidence Object: 'facet-6',
         
-Theme Facts: 'thematic'
+Fact Elements: 'thematic'
