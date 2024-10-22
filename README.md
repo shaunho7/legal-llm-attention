@@ -1,11 +1,14 @@
 # Impacts of Continued Legal Pre-Training and IFT on LLMs' Latent Representations of Human-Defined Legal Concepts
 In the Main Proceedings of the 37th International Conference on Legal Knowledge and Information Systems​ (December 11-13, 2024), Brno, Czech Republic.
+
 Preprint link: https://arxiv.org/abs/2410.12001
+
 This is the codebase for the experiments conducted in the above paper.
 
 # Overview of directories and scripts
 ## 1_generate_raw_data
 Each notebook in this folder does the following:
+
 1. Loads a model (from the choices ['mistralai/Mistral-7B-v0.1', 'Equall/Saul-7B-Base', 'Equall/Saul-7B-Instruct-v1']) and maps it to some safe_model_id.
 2. Runs a text sequence through the forward method of the model and generates the resulting attention matrix, <class 'torch.Tensor'> of shape torch.Size([32, 32, seq_len, seq_len]), where 32, 32 is num_layers, num_heads in the Mistral-7B family.
 3. Saves this resulting attention matrix '{safe_sequence_id}_{safe_model_id}_attentions_raw.npy'. Each safe_sequence_id points to a given human-defined legal concept as defined in Section 2.2, Table 1 of the paper.
@@ -19,6 +22,7 @@ One notebook exists for each human-defined legal concept and the text sequence t
 
 ## 2_analyze_proportions_of_total_attention_S3.1_3.2
 All the 'proportion matrices' generated in Step 8 above are saved to this directory. 
+
 1. The matrices are flattened into 'proportions_data.csv' using 1_parse_data_as_DF.ipynb as found in the subdirectory statistical_analyses_S3.1_3.2.
 2. 'proportions_data.csv' computes differences in the proportions of total attention to each legal concept across various model pairings, grouped by attention head (given by layer-head index) and legal concept.
 3. The R scripts are used to generate the analyses found in Section 3 of the paper. Ensure that 'proportions_data.csv' is found in the same working directory when running the R scripts. Specifically:
