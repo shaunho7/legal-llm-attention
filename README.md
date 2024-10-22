@@ -14,6 +14,7 @@ Each notebook in this folder does the following:
 6. Identifies the indices of the tokens representing the human-defined legal concepts. Manual selection is done in some cases here to avoid accidentally capturing duplicates tokens outside of the human-defined legal concepts such as "the", "a", etc.
 7. Computes the proportion of total attention allocated to those specific token indices and represents it as a 'proportion matrix' of dimensionality num_layers, num_heads (32, 32). Each value represents the proportion of total attention allocated to indices representing human-defined legal concepts in the given attention head as identified by its layer-head index.
 8. Saves this proportion matrix as '{safe_sequence_id}_{safe_model_id}_proportions.npy'.
+
 One notebook exists for each human-defined legal concept and the text sequence that contains it, as found in the items of Table 1 in Section 2.2 of the paper. Each human-defined legal concept maps to a safe_sequence_id as indicated in the 'Mapping' section in this readme file below.
 
 ## 2_analyze_proportions_of_total_attention_S3.1_3.2
@@ -27,8 +28,11 @@ All the 'proportion matrices' generated in Step 8 above are saved to this direct
 
 ## 3_compare_raw_attention_matrices_S3.3
 All the raw attention matrices and filtered attention matrices generated in Steps 3 and 5 in the raw data generation process (see item 1 above) are saved to this directory.
+
 The methodology of the paper is to use the filtered attention matrices. As such, only the filtered attention matrices '{safe_sequence_id}_{safe_model_id}_attentions_filtered.npy' are used in the scripts below, but they can be used to analyze the raw attention matrices with minimal modification.
+
 NOTE: The raw and filtered attention matrices for the legal concept 'Fact Elements' is not uploaded as each of them exceeds GitHub's upload size limits (approx. 110MB each). There are large variations in the file sizes of the attention matrices between legal concepts because the lengths of the text sequences containing each concept varies and the differences in these lengths are eccentuated by the quadriatic complexity of attention computation (the size of the attention matrix is seq_len x seq_len). Kindly contact the author/owner of this repo for access to the data. 
+
 1. 1_view_attention_matrix.py plots an attention matrix for a given model and legal concept/text sequence. This generates Figure 2 in Section 3.3 of the paper.
 2. 2_view_diff_matrix.py takes two models and a legal concept/text sequence as input, and plots a matrix showing the differences in attention scores between the two models on the same text sequence. This generates Figure 3 in Section 3.3 of the paper.
  
