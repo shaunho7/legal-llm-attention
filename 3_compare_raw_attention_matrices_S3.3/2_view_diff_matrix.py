@@ -7,7 +7,6 @@ from matplotlib.colors import LinearSegmentedColormap
 # Notes:
 # The code in this script takes (i) a given attention head, (ii) text sequence, and (iii) model pair and (1) computes the differences in attention scores between the two models when run on the same text sequence and (2) plots them as a heatmap matrix.
 # This allows quick computation and visualization of differences in attention scores between Mistral 7B and its legally-trained variants.
-# Please ensure that this script lies in the folder "S3.3_raw_attention_matrices" and is run from this directory as the wd. 
 
 # Parameters:
 # experiment_id [str]: A legal concept drawn from the list in Section 2.2, Table 1. Choices: [Definiendum, Role, Permissible Action, Prohibitory Action, Evidence Object, Theme Facts]
