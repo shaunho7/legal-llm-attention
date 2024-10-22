@@ -55,4 +55,7 @@ Evidence Object: 'facet-6',
 
 Fact Elements: 'thematic'
 
+# Other
 Kindly contact the paper's author or the owner of this repo for any questions.
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+This project is licensed under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International License](./LICENSE.md).
