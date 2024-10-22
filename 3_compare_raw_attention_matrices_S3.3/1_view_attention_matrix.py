@@ -5,7 +5,6 @@ import seaborn as sns
 
 # Notes:
 # The code in this script takes a given attention head in a single LLM and plots its attention matrix.
-# Please ensure that this script lies in the folder "S3.3_raw_attention_matrices" and is run from this directory as the wd. 
 
 # Parameters:
 # experiment_id [str]: A legal concept drawn from the list in Section 2.2, Table 1. Choices: [Definiendum, Role, Permissible Action, Prohibitory Action, Evidence Object, Theme Facts]
