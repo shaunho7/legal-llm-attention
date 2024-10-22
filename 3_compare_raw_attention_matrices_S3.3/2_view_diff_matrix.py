@@ -2,14 +2,27 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
 
-# 22-10 Role, 1-23 Evidence Object or 3-31, 12-24 Definiendum (Exploratory)
+# Notes:
+# The code in this script takes (i) a given attention head, (ii) text sequence, and (iii) model pair and (1) computes the differences in attention scores between the two models when run on the same text sequence and (2) plots them as a heatmap matrix.
+# This allows quick computation and visualization of differences in attention scores between Mistral 7B and its legally-trained variants.
+# Please ensure that this script lies in the folder "S3.3_raw_attention_matrices" and is run from this directory as the wd. 
 
-experiment_id = "Role"
-model_id = 'mistralaiMistral-7B-v0.1'
-layer_depth = 28
-head_idx = 16
+# Parameters:
+# experiment_id [str]: A legal concept drawn from the list in Section 2.2, Table 1. Choices: [Definiendum, Role, Permissible Action, Prohibitory Action, Evidence Object, Theme Facts]
+# old_model_id [str]: The Hugging Face ID of the base model as mentioned in Section 2.1. Use mistralaiMistral-7B-v0.1.
+# new_model_id [str]: The Hugging Face ID of a legally-trained model as mentioned in Section 2.1. Choices: [EquallSaul-7B-Instruct-v1, EquallSaul-7B-Base].
+# layer_depth [int]: The layer number where the head (whose attention scores you would like to examine) is located. Zero-indexed. Choices in the range of [0,31]
+# head_idx [int]: The head number of the head (whose attention scores you would like to examine). Zero-indexed. Choices in the range of [0,31]
 
+experiment_id = "Evidence Object"
+old_model_id = 'mistralaiMistral-7B-v0.1'
+new_model_id = 'EquallSaul-7B-Instruct-v1'
+layer_depth = 3
+head_idx = 31
+
+# Maps the input parameters to the raw filenames, defines the human-readable token sequence that will be plotted on the chart axes, and identifies the indices of the tokens representing legal concepts (for bolding and printing in red)
 facet_mapping = {
     'Definiendum': {
         'name': 'facet-1',
@@ -48,72 +61,74 @@ facet_mapping = {
     }
 }
 
-filepath = f"{facet_mapping[experiment_id]['name']}_{model_id}_attentions_filtered.npy"
-data = np.load(filepath)
+# Load the diff matrix as a pandas DF. Note that we use the filtered attention score matrices (attention scores on tokens representing punctuation and <sos> are reset to 0)
+old_filepath = f"{facet_mapping[experiment_id]['name']}_{old_model_id}_attentions_filtered.npy"
+old_data = np.load(old_filepath)
+old_data_head = old_data[layer_depth][head_idx]
+new_filepath = f"{facet_mapping[experiment_id]['name']}_{new_model_id}_attentions_filtered.npy"
+new_data = np.load(new_filepath)
+new_data_head = new_data[layer_depth][head_idx]
+# For the given model pair, compute the diffs in attention scores between the two models, on the given text sequence and attention head.
+diff = new_data_head - old_data_head
+df = pd.DataFrame(diff)
 
-# Create a DataFrame for better readability
-df = pd.DataFrame(data[layer_depth][head_idx])
-
-# Get the tokens for the 'Evidence Object' (facet-6)
+# Cleaning of token strings into human-readable format for better plot visuals. 
+# If the token is equal to ▁, it is replaced by the string '<space>' for clearer representation of spaces. 
+# Strip any leading occurrences of _ or ▁ from the token.
 tokens_stripped = [
     '<space>' if token == '▁' else token.lstrip('_▁')
     for token in facet_mapping[experiment_id]['tokens']
 ]
 
+# Sanity check
 print(f"Length of 'tokens' = {len(tokens_stripped)}")
 print(f"Shape of pd.DataFrame = {df.shape}")
-
-# Ensure that the number of tokens matches the DataFrame's size
 if len(tokens_stripped) != df.shape[0]:
     raise ValueError("The number of tokens must match the DataFrame dimensions.")
 
-# Create a mask for the upper triangle (excluding the diagonal)
+# Create a mask for the upper triangle
 mask = np.triu(np.ones_like(df, dtype=bool), k=1)  # k=1 excludes the diagonal
 
-# Define a function for annotating only values > 0.05 and with "+" prefix for positive floats
+# Visual tweaks
+# Annotate only values at or above 0.1. Add "+" prefixes for positive floats
 def custom_annot(val):
     if val > 0.0999:
-        return f"{val:.2f}" if val > 0 else f"{val:.2f}"
+        return f"+{val:.2f}"
+    elif val < -0.0999:
+        return f"{val:.2f}"
     return ""
-
-# Create an annotation DataFrame based on your custom annotation rule
 annot_df = df.applymap(custom_annot)
 
-# Plotting the heatmap with tokens as axes labels
+# Plot the diff matrix as a heatmap with the tokens as axis labels.
 plt.figure(figsize=(10, 6))
-ax = sns.heatmap(df, annot=annot_df, mask=mask, cmap='viridis', fmt='', cbar=True)
+ax = sns.heatmap(df, annot=annot_df, mask=mask, cmap='RdYlGn', fmt='', cbar=True, vmin=-0.04, vmax=0.04) # Vary vmin and vmax
 
-# Explicitly set the ticks to match the number of tokens
-ax.set_xticks(np.arange(df.shape[1]) + 0.5)  # Align ticks with the center of the cells
+# Explicitly set the ticks to match the number of tokens.
+ax.set_xticks(np.arange(df.shape[1]) + 0.5)  
 ax.set_yticks(np.arange(df.shape[0]) + 0.5)
 
-# Set the x and y axis labels to the tokens
+# Set the x and y axis labels to the tokens.
 ax.set_xticklabels(tokens_stripped, rotation=0, fontsize=15)
 ax.set_yticklabels(tokens_stripped, rotation=0, fontsize=15)
 
-# Select indices to bold
+# Select indices to plot in bold.
 bold_indices = facet_mapping[experiment_id]['facet_indices']
 
-# Bold the specified xticks
+# Bold the specified xticks.
 for i, label in enumerate(ax.get_xticklabels()):
     if i in bold_indices:
         label.set_fontweight('bold')
         label.set_color('red')
 
-# Bold the specified yticks
+# Bold the specified yticks.
 for i, label in enumerate(ax.get_yticklabels()):
     if i in bold_indices:
         label.set_fontweight('bold')
         label.set_color('red')
 
-# Add plot title, x-axis, and y-axis labels
-ax.set_xlabel('Keys', fontsize=15)  # x-axis title
-ax.set_ylabel('Queries', fontsize=15)  # y-axis title
-
-# Remove any alpha transparency
-ax.xaxis.label.set_alpha(1.0)
-ax.yaxis.label.set_alpha(1.0)
-ax.title.set_alpha(1.0)
+# Add labels.
+ax.set_xlabel('Keys', fontsize=15)  
+ax.set_ylabel('Queries', fontsize=15)  
 
 # Show the heatmap
 plt.show()

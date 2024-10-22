@@ -29,13 +29,13 @@ summary_data <- data %>%
   )
 
 # Plot for each experiment_id
-ggplot(summary_data, aes(x = layer_depth)) +
+p <- ggplot(summary_data, aes(x = layer_depth)) +
   geom_line(aes(y = mean_saulbase_mistral, color = "SaulLM-7B-Base")) +
   geom_line(aes(y = mean_saulift_mistral, color = "SaulLM-7B-Instruct")) +
   facet_wrap(~experiment_id, scales = "free", nrow = 2, ncol = 4) +
   labs(
     x = "Layer Depth", 
-    y = "Mean Additional Attention to Legal Concepts\nvs Mistral 7B", 
+    y = "Mean Additional Attention to Legal Concepts\n(vs Mistral 7B)", 
     color = "Model"
   ) +
   theme_minimal() +
@@ -44,8 +44,17 @@ ggplot(summary_data, aes(x = layer_depth)) +
   geom_smooth(aes(y = mean_saulbase_mistral, color = "SaulLM-7B-Base"), se = FALSE, linetype = "dashed", size = .5) +
   geom_smooth(aes(y = mean_saulift_mistral, color = "SaulLM-7B-Instruct"), se = FALSE, linetype = "dashed", size = .5) +
   theme(
-    legend.position = c(0.98, 0.2),
+    legend.position = c(0.99, 0.2),
     legend.box.background = element_rect(color = "black"),
     legend.justification = "right",
-    strip.text = element_text(size = 14)
+    strip.text = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    axis.title.x = element_text(size = 16.5),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.title.align = 0.5
   )
+p
+ggsave("plot_high_quality.png", plot = p, width = 10.5, height = 4, units = "in", dpi = 600)
