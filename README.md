@@ -42,11 +42,17 @@ NOTE: The raw and filtered attention matrices for the legal concept 'Fact Elemen
  
 # Mapping of experiment_ids and safe_sequence_ids to human-defined legal concepts:
 Definiendum: 'facet-1',
+
 Role: 'facet-2',      
+
 Permissible Action: 'facet-3',
+
 Prohibitory Action: 'facet-4',
+
 Condition: 'facet-5'
+
 Evidence Object: 'facet-6',
+
 Fact Elements: 'thematic'
 
 Kindly contact the paper's author or the owner of this repo for any questions.
